@@ -60,3 +60,24 @@ The following problems were encountered:
 ---
 
 With this `Dockerfile`, the container became lighter and have less starting time, the container does not run as a root user, which is according to the security best practices, and it can handle more traffic since it runs using `gunicorn` with multiple workers.
+
+### Provision  a Kubernetes Cluster
+
+This section is going to document the Kubernetes Creation using Terraform.
+
+#### Pre Terraform init
+
+Before initializing the backend, we must configure the `azure-cli` in the terminal that is going to run the `terraform init`and `terraform apply`.
+
+The following command should be run before running terraform:
+
+`az login`
+
+This is an interactive login
+
+#### Azure Modules
+
+The following are the modules used in this terraform infrastructure and their Github Links:
+
+1. [Virtual Network Module](https://github.com/Azure/terraform-azurerm-avm-res-network-virtualnetwork) (Later Disposed off since AKS creates its own Virtual Network)
+2. [Azure Kubernetes Service](https://registry.terraform.io/modules/Azure/aks/azurerm/latest) (2 versions were tried to create the cluster inside the already created Virtual Network)

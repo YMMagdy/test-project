@@ -38,4 +38,6 @@ RUN chown -R appuser:appuser /app
 
 EXPOSE 5000
 
+USER appuser
+
 CMD ["gunicorn","--config","gunicorn_config.py","run:app"]

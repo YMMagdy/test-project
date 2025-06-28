@@ -37,3 +37,9 @@ Thumbs.db
 *.tmp
 
 .venv
+
+*.tfstate
+
+*.tfstate.*
+
+*.tfvars
