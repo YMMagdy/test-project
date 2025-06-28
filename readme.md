@@ -81,3 +81,4 @@ The following are the modules used in this terraform infrastructure and their Gi
 
 1. [Virtual Network Module](https://github.com/Azure/terraform-azurerm-avm-res-network-virtualnetwork) (Later Disposed off since AKS creates its own Virtual Network)
 2. [Azure Kubernetes Service](https://registry.terraform.io/modules/Azure/aks/azurerm/latest) (2 versions were tried to create the cluster inside the already created Virtual Network)
+3. [Amazon Container Registry](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/container_registry) (Gave the AKS role to pull from ACR)
