@@ -6,7 +6,7 @@ This readme file is created to document the step by step process of deploying th
 
 The following steps are taken to complete this project:
 
-1. Containerizing the flask application in `/app` directory
+1. Containerizing the flask application in `/microservice` directory
 
 ## Documentation
 
@@ -17,7 +17,7 @@ The following section will be documenting every step on its own and how the fina
 The following steps were taken to create the `Dockerfile` with non-root user running the container:
 
 1. Used a lightweight version of python3.12 container as a builder
-2. Choose the `/app` as my working directory
+2. Choose the `/microservice` as my working directory
 3. Copied the `app` directory, which has the microservice itself, the `run.py` file to run the application and the requirements.txt file to the directory
 4. Copied the `gunicorn` configuration file
 5. run `pip install` command with the `--target` to specify the location which the packages will be installed
