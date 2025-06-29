@@ -27,6 +27,6 @@ resource "azuread_application_federated_identity_credential" "github_oidc" {  #A
 
 resource "azurerm_role_assignment" "aks_deploy" {
   principal_id         = azuread_service_principal.github_aks_app.object_id
-  role_definition_name = "Azure Kubernetes Service RBAC Writer"
-  scope                = "${data.azurerm_kubernetes_cluster.aks.id}/namespace/dev"
+  role_definition_name = "Azure Kubernetes Service Cluster User Role"
+  scope                = data.azurerm_kubernetes_cluster.aks.id
 }

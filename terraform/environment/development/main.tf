@@ -78,6 +78,7 @@ module "kubernetes_access" {
   cluster_name = module.aksv2.aks_name
   github_repo = var.github_repo
   github_repo_branch = var.github_repo_branch
+  sub_id = var.subscription_id
   depends_on = [ module.aksv2 ]
 }
 

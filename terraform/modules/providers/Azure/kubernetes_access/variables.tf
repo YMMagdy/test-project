@@ -27,3 +27,7 @@ variable "github_repo_branch" {
   description = "value of the github repo branch for authentication"
   type = string
 }
+
+variable "sub_id" {
+  description = "value of the subscription id"
+}
