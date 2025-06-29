@@ -91,7 +91,7 @@ The following are the modules used in this terraform infrastructure and their Gi
 This section is for documenting the AKS module and justify the reason for my choices.
 
 The following are the module's variables, usage and default values:
-```
+```YAML
 
 - **default_vm_size**: For the default node pool virtual machine size and this was choosen for being cost efficient with $27 per month per instance
 - **default_node_pool_enable_autoscaling**: To enable node horizontal auto-scaling
@@ -113,7 +113,7 @@ The following outputs are exported from this module needed for Kubernetes and he
 This section is for documenting the Azure Container Registry module and justify the reason for my choices.
 
 The following are the module's variables, usage and default values:
-```
+```YAML
 
 - **acrs**: A map of objects containing ACR name with its validation to avoid any confusion
 - **kubelet_identity**: Needed to give access to the kubernetes cluster to pull images from these ACRs
@@ -125,7 +125,7 @@ The following are the module's variables, usage and default values:
 This section is for documenting the GitHub Access module and justify the reason for my choices.
 
 The following are the module's variables, usage and default values:
-```
+```YAML
 
 - **gtihub_repo**: The GitHub repository name without the `https://` or `www.` just a plain {USERNAME}/{REPOSITORY_NAME} 
 - **github_repo_branch**: The repository's branch that is allowed to have access through OIDC
@@ -151,9 +151,65 @@ Acts as a **reverse proxy** and creates the **ingress class** needed by all the 
 
 This section is for documenting the hosted zone module and justify the reason for my choices.
 
-```
+```YAML
 
 subdomains: Map of objects containing the name, record, type and ttl of each record to be instered as records in the hosted zone
 hosted_zone_name: The domain name associated with the hosted zone  
 
 ```
+
+### Deploy the Microservice
+
+For more **flexibility**, **higher customization** and **following best practices**, I choose to create the deployment using a helm chart by doing the following:
+
+1. Run the command `helm create flask-application-helm-chart`
+2. Started modifying some of the values in the `values.yml` such as the image repository, image pullPolicy and image tag.
+3. Added a security Context to follow the **security best practices** like running the container as a nonRootUser
+4. Added the Service **TargetPort** and changed the **service type**
+5. Specified resources **requests** and **limits**
+6. Configured **readiness** and **liveness** Probes
+
+✅ To deploy this helm chart successfully, the following must be set:
+
+- **Image repository**
+- **Image Tag**
+- The **backend service** name must be in this format: `{chart_name}-flask-application-helm-chart`
+
+✅✅ The following command is run at the **top directory** of this repository to install the **helm chart** on the cluster:
+
+`helm install my-app ./flask-application-helm-chart --set image.repository={ACR_Name}.azurecr.io/flask-application --set tag={LATEST_PUSHED_TAG_BY_GITHUB}`
+
+### Expose the Service to the Internet
+
+To keep following the **best practices** for deployments, the **ingress** exposing the service to the internet is created **inside the helm chart**.
+
+Inside the ingress block in the values.yml, the following should be the values to **expose the service** to the **internet successfully**:
+
+```YAML
+ingress:
+  enabled: true
+  className: "external-nginx"
+  annotations: #{}
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+    # kubernetes.io/ingress.class: "external-nginx"
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: flask-test.duckdns.org
+      paths:
+        - path: /flask-app/(.*)
+          pathType: ImplementationSpecific
+          backend:
+            service:
+              name: "my-app-flask-application-helm-chart" # set to {chart_name}-flask-application-helm-chart
+              port:
+                number: 5000
+
+```
+
+‼️ If we want to **change the path** by removing the `/flask-app` from the route, we must remove the `nginx.ingress.kubernetes.io/rewrite-target: /$1` since this annotation removes the first part of the route and sends the rest to the specified service.
+
+🟢 The reason for choosing this approach is to provide more **customizability** without the hastle of too many manifest files.
+
+✅ The service is deployed and exposed to the internet succesfully.
+
