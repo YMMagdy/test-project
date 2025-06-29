@@ -267,3 +267,13 @@ The rest of the implemented solution:
     - Run the `helm upgrade` command and setting the **image repository** and the **image tag**
 
 4. **notify**: This job is for **notifying the email list** with the status in case of **success or failure** and it depends on the previous jobs.
+
+## 🟢 Further Improvements
+
+- **Deploy ArgoCD** for better security for updates
+- Keep the **helm chart values** in a **separate private repository**
+
+## ‼️ Considerations
+
+- The deployed ArgoCD is **not fully funcational** (Deployed but there is an issue in connecting to the backend services)
+- Any part of the code the has the comment `#Assisted` is not my own code.
