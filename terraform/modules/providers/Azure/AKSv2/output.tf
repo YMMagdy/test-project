@@ -39,13 +39,3 @@ output "aks_id" {
   description = "value of the kubernetes cluster id"
   value       = module.aks.aks_id
 }
-
-output "ingress_application_gateway" {
-  description = "value of the application gateway block"
-  value       = module.aks.ingress_application_gateway
-}
-
-output "web_app_routing_identity" {
-  description = "value of the web app routing identity"
-  value       = module.aks.web_app_routing_identity
-}

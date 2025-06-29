@@ -82,3 +82,22 @@ The following are the modules used in this terraform infrastructure and their Gi
 1. [Virtual Network Module](https://github.com/Azure/terraform-azurerm-avm-res-network-virtualnetwork) (Later Disposed off since AKS creates its own Virtual Network)
 2. [Azure Kubernetes Service](https://registry.terraform.io/modules/Azure/aks/azurerm/latest) (2 versions were tried to create the cluster inside the already created Virtual Network)
 3. [Amazon Container Registry](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/container_registry) (Gave the AKS role to pull from ACR)
+4. Github Access : Added AD Application, Service Principle, Role assignment and OIDC for Github to be able to access all the ACR to push build images.
+5. [Hosted Zone and Different Types of Records](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/dns_a_record)
+6. NGINX: This was added using Helm to serve as a reverse proxy inside the Kubernetes cluster and to be used as an ingress controller
+
+##### Azure Kubernetes Service
+
+This section is for documenting the AKS module and justify the reason for my choices.
+
+The following are the module's variables, usage and default values:
+```
+
+- **default_vm_size**: For the default node pool virtual machine size and this was choosen for being cost efficient with $27 per month per instance
+- **default_node_pool_enable_autoscaling**: To enable node horizontal auto-scaling
+- **default_node_pool_node_count**: Default number of nodes in the pool
+- **default_node_pool_node_max_count**: Maximum number of nodes in the pool and it must be bigger than the *default_node_pool_node_count*
+- **default_node_pool_disk_size_in_gb**: Default disk size of each node
+
+```
+
