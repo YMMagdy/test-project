@@ -102,7 +102,7 @@ jobs:
           git push origin "$new_version"
       - name: docker build
         run: |
-          docker build -t ${{secrets.ACR_NAME}}.azurecr.io/flaskapp:${{steps.latest_tag.outputs.tag}} ./microservice/
+          docker build -t ${{secrets.ACR_NAME}}.azurecr.io/flaskapp:${{steps.latest_tag.outputs.tag}} .
           docker image ls
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@0.28.0
