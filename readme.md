@@ -284,3 +284,4 @@ The rest of the implemented solution:
 - The deployed ArgoCD is **not fully funcational** (Deployed but there is an issue in connecting to the backend services)
 - Any part of the code the has the comment `#Assisted` is not my own code.
 - All the domain names are created using [DuckDNS](https://www.duckdns.org/install.jsp)
+- `terraform/environment/development/output.tf` has some outputs commented for security purposes and these outputs' values are used in the github pipeline
