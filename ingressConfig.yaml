@@ -1,0 +1,46 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: flask-ingress
+  namespace: dev
+  annotations:
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+    # nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+    # nginx.ingress.kubernetes.io/ssl-redirect: "false" #true for forcing redirect to HTTPS
+    # nginx.ingress.kubernetes.io/enable-cors: "true" #
+    # nginx.ingress.kubernetes.io/cors-allow-origin: "*" # Specify domain names in case of frontend
+    # nginx.ingress.kubernetes.io/cors-allow-methods: "PUT, GET, POST, OPTIONS, DELETE"
+    # # nginx.ingress.kubernetes.io/cors-allow-headers: "Referrer-Policy,Accept,Accept-Encoding,Accept-Language,Access-Control-Request-Headers,Access-Control-Request-Method,Authorization,Content-Type,Origin,Referer,User-Agent" # Allowed Headers
+    # nginx.ingress.kubernetes.io/proxy-connect-timeout: "120"
+    # nginx.ingress.kubernetes.io/proxy-send-timeout: "120"
+    # nginx.ingress.kubernetes.io/cors-expose-headers: "Content-Type, Authorization, X-Requested-With"
+    # nginx.ingress.kubernetes.io/cors-allow-credentials: "true" #
+    # kubernetes.io/ingress.class: "external-nginx"
+spec:
+  ingressClassName: external-nginx
+  # tls:
+  #   - hosts:
+  #     - youssef-flask-app-example.duckdns.org
+  #     secretName: flask-dev-tls # For HTTPS
+  rules:
+      # - host: flask-test.duckdns.org
+      #   http:
+      #     paths:
+      #     - path: /flask-app/(.*)
+      #       pathType: ImplementationSpecific
+      #       backend:
+      #         service:
+      #           name: my-app-flask-application-helm-chart
+      #           port:
+      #             number: 5000
+      - host: flask-test.duckdns.org
+        http:
+          paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: argo-cd-argocd-server
+                port:
+                  name: http

@@ -22,6 +22,15 @@ jobs:
       with:
         # Disabling shallow clones is recommended for improving the relevancy of reporting
         fetch-depth: 0
+        sparse-checkout: 'microservice'
+        sparse-checkout-cone-mode: false
+    - name: Move microservice files to root
+      run: |
+        ls -lah
+        shopt -s dotglob
+        mv microservice/* .
+        rm -rf microservice
+        ls -lah
     - name: SonarQube Scan
       uses: sonarsource/sonarqube-scan-action@master
       env:
@@ -49,6 +58,15 @@ jobs:
         with:
          fetch-tags: true
          fetch-depth: 0
+         sparse-checkout: 'microservice'
+         sparse-checkout-cone-mode: false
+      - name: Move microservice files to root
+        run: |
+          ls -lah
+          shopt -s dotglob
+          mv microservice/* .
+          rm -rf microservice
+          ls -lah
       - name: list files
         run: |
           ls -al
