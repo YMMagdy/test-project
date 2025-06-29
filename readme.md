@@ -101,3 +101,59 @@ The following are the module's variables, usage and default values:
 
 ```
 
+The following outputs are exported from this module needed for Kubernetes and helm providers authentication:
+
+- **cluster_host_endpoint**
+- **client_certificate**
+- **cluster_ca_certificate**
+- **client_key**
+
+##### Azure Container Registry
+
+This section is for documenting the Azure Container Registry module and justify the reason for my choices.
+
+The following are the module's variables, usage and default values:
+```
+
+- **acrs**: A map of objects containing ACR name with its validation to avoid any confusion
+- **kubelet_identity**: Needed to give access to the kubernetes cluster to pull images from these ACRs
+
+```
+
+##### GitHub Access
+
+This section is for documenting the GitHub Access module and justify the reason for my choices.
+
+The following are the module's variables, usage and default values:
+```
+
+- **gtihub_repo**: The GitHub repository name without the `https://` or `www.` just a plain {USERNAME}/{REPOSITORY_NAME} 
+- **github_repo_branch**: The repository's branch that is allowed to have access through OIDC
+
+```
+
+⚠️ Looking back on this module, the map of ACRs are **not a best practice** when we consider security since we are giving access to **multiple ACRs** to a single GitHub repository.
+
+✅ Remove the map of ACRs and use a single ACR. Reuse the module whenever a repository is needed to access an ACR to have a 1:1 relationship between the Github repository and the ACR for **better security** and **providing least privileges**
+
+Steps to give access:
+
+1. Create Azure AD application for Github
+2. Create a Service Principle, which is the indentity in the tenant
+3. Create the Azure AD OIDC Federation Identity with Github
+4. Assign the role of AcrPush to the Github application for each of the ACRs
+
+##### NGINX
+
+Acts as a **reverse proxy** and creates the **ingress class** needed by all the services, which should be exposed outside the cluster.
+
+##### Hosted Zone
+
+This section is for documenting the hosted zone module and justify the reason for my choices.
+
+```
+
+subdomains: Map of objects containing the name, record, type and ttl of each record to be instered as records in the hosted zone
+hosted_zone_name: The domain name associated with the hosted zone  
+
+```
