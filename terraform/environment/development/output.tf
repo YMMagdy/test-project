@@ -25,3 +25,8 @@ output "kubernetes_tenant_id" {
   value = module.github_access.tenant_id
   sensitive = false
 }
+
+output "nginx_ip" {
+  description = "value of the public IP gained by the NGINX controller"
+  value = module.nginx.nginx_ip
+}
