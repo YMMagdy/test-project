@@ -223,6 +223,17 @@ ingress:
 
 This section is created to document the deployment and pipeline steps using github actions.
 
+The overview of the pipeline is:
+
+1. **Checkout**
+2. **Static Code Analysis** using **Snyk**
+3. **Checkout**, **get tag** and **build docker image**
+4. **Image vulnerability scan** using **Trivy**
+5. **Login to ACR** and **push to ACR**
+6. Install **helm** and **kubectl**
+7. **Install helm chart** with the **update image tag** on the kubernetes cluster
+8. **Notify** using **email**
+
 The following are the jobs run inside the pipeline:
 
 1. **snyl_analysis**: This job main purpose is to run a static code analysis using an open source tool called **Snyk**.
