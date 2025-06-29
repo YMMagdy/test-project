@@ -277,6 +277,7 @@ The rest of the implemented solution:
 ## 🟢 Further Improvements
 
 - **Deploy ArgoCD** for better security for updates
+- Deploy the **kube-prometheus-stack** helm chart, that contains Grafana, Prometheus and Alert Manager, for observability.
 - Keep the **helm chart values** in a **separate private repository**
 - Each Github repository should only have access to a single ACR for better separation of concerns and better security
 
