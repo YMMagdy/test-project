@@ -158,6 +158,12 @@ hosted_zone_name: The domain name associated with the hosted zone
 
 ```
 
+##### Kubernetes Access
+
+This is a module to give access to Github to update the deployments in the kubernetes cluster. It is similar to the Github Access module but with the different role to be attached to it.
+
+‼️ The best practice is to deploy **ArgoCD** into the cluster and let it **listen to the changes** that is introduced to the helm chart repo.
+
 ### Deploy the Microservice
 
 For more **flexibility**, **higher customization** and **following best practices**, I choose to create the deployment using a helm chart by doing the following:
