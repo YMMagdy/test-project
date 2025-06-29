@@ -130,3 +130,9 @@ module "hosted_zone"{
 
   depends_on = [ module.aksv2 ]
 }
+
+module "argo_cd" {
+  source = "../../modules/providers/Kubernetes/ArgoCD"
+  environment = var.environment
+  depends_on = [ module.aksv2 ]
+}
