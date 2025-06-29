@@ -278,6 +278,7 @@ The rest of the implemented solution:
 
 - **Deploy ArgoCD** for better security for updates
 - Keep the **helm chart values** in a **separate private repository**
+- Each Github repository should only have access to a single ACR for better separation of concerns and better security
 
 ## ‼️ Considerations
 
