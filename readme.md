@@ -75,11 +75,11 @@ The following command should be run before running terraform:
 
 This is an interactive login on ubuntu or windows if not subscription id and tenant id are supplied.
 
-After running `terraform apply --var-file=secrets.tfvars` inside the backend directory inside the `development` directory,  then type `yes` to intializing the backend successfully, put the backend blob details inside the `backend` block inside the `providers.tf` located inside the `development` directory.
+After running `terraform apply --var-file=secrets.tfvars` inside the backend directory inside the `development` directory,  then type `yes` or `terraform apply --var-file=secrets,tfvars -auto-approve`(Not considered best practice) to intializing the backend successfully, put the backend blob details inside the `backend` block inside the `providers.tf` located inside the `development` directory.
 
 Run the `terraform init` command inside the `development` directory to initialize the needed modules.
 
-Run the `terraform plan --var-file=secrets.tfvars` command to create a plan of the resources that should be created and then run `terraform apply --var-file=secrets.tfvars` and then type `yes`
+Run the `terraform plan --var-file=secrets.tfvars` command to create a plan of the resources that should be created and then run `terraform apply --var-file=secrets.tfvars` and then type `yes` or `terraform apply --var-file=secrets.tfvars -auto-approve`(Not considered best practice)
 
 #### Azure Modules
 
