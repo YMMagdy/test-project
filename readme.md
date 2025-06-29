@@ -162,7 +162,7 @@ hosted_zone_name: The domain name associated with the hosted zone
 
 This is a module to give access to Github to update the deployments in the kubernetes cluster. It is similar to the Github Access module but with the different role to be attached to it.
 
-‼️ The best practice is to deploy **ArgoCD** into the cluster and let it **listen to the changes** that is introduced to the helm chart repo.
+‼️ The best practice is to deploy **ArgoCD** into the cluster and let it **listen to the changes** that is introduced to the helm chart repository.
 
 ### Deploy the Microservice
 
@@ -219,3 +219,40 @@ ingress:
 
 ✅ The service is deployed and exposed to the internet succesfully.
 
+### Deployment
+
+This section is created to document the deployment and pipeline steps using github actions.
+
+The following are the jobs run inside the pipeline:
+
+1. **snyl_analysis**: This job main purpose is to run a static code analysis using an open source tool called **Snyk**.
+
+    - Checkout just the folder containing the source code and Dockerfile for the purpose of the project to have all the content in a single repository
+    - Moved all the content of the folder to the **root** directory
+    - Run the static code analysis using Python and **fail the pipeline** if a **critial** issue is found
+
+2. **checkout_and_build**: The purpose of this job is to checkout the source code itself, build the docker image, perform a image vulnerability scan and then push to the ACR
+
+    - Checkout just the folder containing the source code and Dockerfile for the purpose of the project to have all the content in a single repository
+    - Moved all the content of the folder to the **root** directory
+    - Get the **latest tag** and **increment the version** using the latest tag and if there is **no previous tag** then it **starts with 0.0.1**
+    - Docker build using the tag version
+    - Trivy is used to scan the image for vulnerabilities with **critical failing the deployment**
+    - Login using the OIDC
+    - Pushing to the ACR
+
+3. **deploy_help_chart**: The purpose of this job is to deploy the helm chart with the new pushed image tag from the `checkout_and_build` job.
+
+    - Login to Azure using the Service Principle that have access to the Kubernetes Cluster
+
+‼️ This is **not considered the best practice** since we **gave access to Github** for the cluster. However, this should be overcome be giving access to something inside the cluster to the resource outside the cluster.
+
+✅ The solution is to **deploy ArgoCD** inside the **kubernetes cluster** and let it listen to updates inside another repository just **specific for the helm chart only**. ArgoCD should **upgrade the helm** chart only when the pipeline run in this repository **edit the chart repository**.
+
+The rest of the implemented solution:
+
+    - Install **kubectl** and **helm**
+    - Checkout the whole repository to include the **helm chart values**
+    - Run the `helm upgrade` command and setting the **image repository** and the **image tag**
+
+4. **notify**: This job is for **notifying the email list** with the status in case of **success or failure** and it depends on the previous jobs.

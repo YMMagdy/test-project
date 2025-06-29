@@ -15,7 +15,7 @@ permissions:
   id-token: write
   
 jobs:
-  sonarqube:
+  snyk_analysis:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -31,24 +31,30 @@ jobs:
         mv microservice/* .
         rm -rf microservice
         ls -lah
-    - name: SonarQube Scan
-      uses: sonarsource/sonarqube-scan-action@master
+    - name: Snyk Scan
+      uses: snyk/actions/python@master
       env:
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-
-    - name: SonarQube Quality Gate check
-      id: sonarqube-quality-gate-check
-      uses: sonarsource/sonarqube-quality-gate-action@master
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
       with:
-        pollingTimeoutSec: 600
-      env:
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+          args: --severity-threshold=critical
+    # - name: SonarQube Scan
+    #   uses: sonarsource/sonarqube-scan-action@master
+    #   env:
+    #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+    #     SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+
+    # - name: SonarQube Quality Gate check
+    #   id: sonarqube-quality-gate-check
+    #   uses: sonarsource/sonarqube-quality-gate-action@master
+    #   with:
+    #     pollingTimeoutSec: 600
+    #   env:
+    #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+    #     SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
 
 
   checkout_and_build:
-    needs: [sonarqube]
+    needs: [snyk_analysis]
     runs-on: ubuntu-latest
     outputs:
       build_tag: ${{steps.latest_tag.outputs.tag}}
@@ -119,12 +125,44 @@ jobs:
       - name: docker push to ACR
         run: |
           docker push ${{secrets.ACR_NAME}}.azurecr.io/flaskapp:${{steps.latest_tag.outputs.tag}}
-          
-          
-          
-  notify:
+ 
+  deploy_helm_chart:
+    needs: [checkout_and_build]
     runs-on: ubuntu-latest
-    needs: checkout_and_build
+    steps:
+      - name: Login to Azure using OIDC
+        uses: Azure/login@v2.3.0
+        with:
+          client-id: ${{ secrets.AZURE_KUBERNETES_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          allow-no-subscriptions: true
+      - name: Get Kubernetes Credentials
+        run: |
+          az aks get-credentials --resource-group ${{ secrets.RESOURCE_GROUP_NAME }} --name ${{secrets.AKS_NAME }}
+      - name: Set up Kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'v1.33.1' 
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4.3.0
+
+      - name: repo checkout
+        uses: actions/checkout@v4
+        with:
+         fetch-tags: true
+         fetch-depth: 0
+
+      - name: Deploy helm chart
+        run: |
+          helm upgrade --install my-app ./flask-application-helm-chart \
+          --set image.repository=${{secrets.ACR_NAME}}.azurecr.io/flaskapp --set image.tag=${{ needs.checkout_and_build.outputs.build_tag }}
+
+          
+          
+  notify_success:
+    runs-on: ubuntu-latest
+    needs: [snyk_analysis, checkout_and_build, deploy_helm_chart]
     if: ${{ success() }}
     steps:
       - name: Send mail
@@ -138,6 +176,24 @@ jobs:
           to: ${{ secrets.EMAIL_LIST}}
           from: ${{ secrets.SENDING_EMAIL_FROM }}
           body: |
-            The workflow in ${{ github.repository }} completed successfully.
+            The workflow in ${{ github.repository }} completed ${{ github.workflow.status }}.
             Run: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-
+  
+  notify_failed:
+    runs-on: ubuntu-latest
+    needs: [snyk_analysis, checkout_and_build, deploy_helm_chart]
+    if: ${{ failure() }}
+    steps:
+      - name: Send mail
+        uses: dawidd6/action-send-mail@v6
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.SENDING_EMAIL_USERNAME }}
+          password: ${{ secrets.SENDING_EMAIL_PASSWORD }}
+          subject: ‼️ GitHub Actions Failure
+          to: ${{ secrets.EMAIL_LIST}}
+          from: ${{ secrets.SENDING_EMAIL_FROM }}
+          body: |
+            The workflow in ${{ github.repository }} failed.
+            Run: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
